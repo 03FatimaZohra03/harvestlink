@@ -49,3 +49,20 @@ next-env.d.ts
 /.windsurf
 /.continue
 /.vscode
+
+# AI tool configs and chat logs
+AGENTS.md
+skills-lock.json
+freebuff_*.txt
+
+# Backup files
+*.bak
+
+# Debug shell scripts
+check_*.sh
+poll.sh
+start_and_verify.sh
+wait_and_test.sh
+
+# Default starter CSS (no longer used)
+app/page.module.css
