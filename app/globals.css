@@ -22,8 +22,8 @@
 
   --color-error: #BA1A1A;
 
-  /* Typography - Inter */
-  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+  /* Typography - Inter (loaded via next/font in app/layout.js) */
+  --font-sans: var(--font-inter), system-ui, -apple-system, sans-serif;
 
   /* Border radius (extend defaults) */
   --radius-card: 1rem;
@@ -31,20 +31,7 @@
   /* Custom shadows */
   --shadow-card: 0 4px 16px -2px rgba(42, 42, 42, 0.05), 0 2px 6px -1px rgba(42, 42, 42, 0.03);
   --shadow-card-hover: 0 8px 24px -4px rgba(42, 42, 42, 0.08);
-
-  /* Custom spacing scale */
-  --spacing-xs: 0.25rem;
-  --spacing-sm: 0.5rem;
-  --spacing-md: 1rem;
-  --spacing-lg: 1.5rem;
-  --spacing-xl: 2.5rem;
 }
-
-/* Inter font import */
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap");
-
-/* Material Symbols icon font */
-@import url("https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap");
 
 /* Base body styles */
 body {
