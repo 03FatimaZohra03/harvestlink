@@ -1,0 +1,153 @@
+Let me start by checking the current state of all relevant files.
+
+
+
+
+Current state:
+- **layout.tsx**: Has `"use client"` and a `<form action="/logout">`. Spec says it should be a Server Component with NO `"use client"`, NO form, just `<a>` tags. **BROKEN** — needs recreation.
+- **page.tsx**: OK (client component with fetch).
+- **seller/page.tsx**: OK.
+- **buyer/page.tsx**: OK.
+- **middleware.ts**: Still imports `./lib/auth` (needs to change to `./lib/session`). Matcher already has `/dashboard`.
+- **lib/auth.ts**: Still exists (needs to be deleted after splitting).
+- **lib/session.ts**: MISSING — needs creation.
+- **lib/password.ts**: MISSING — needs creation.
+- API routes: All still import from `lib/auth`.
+
+STEP 0 report: **layout.tsx was broken** (has `"use client"` and form action — should be Server Component with `<a>` tags). Recreating now.
+
+STEP 0 — Recreate layout.tsx:
+
+
+
+
+STEP 0 done — layout.tsx recreated as Server Component. Now STEP 1 — create lib/session.ts:
+
+
+STEP 2 — create lib/password.ts:
+
+
+
+
+STEP 3 — update middleware.ts import:
+
+
+
+
+STEP 4 — update API route imports. First register:
+
+
+
+
+Login route:
+
+
+
+
+ME route:
+
+
+
+
+Logout route:
+
+
+
+
+STEP 5 — delete lib/auth.ts:
+
+STEP 5 done. Now STEP 6 — TypeScript check:
+
+
+
+
+STEP 6 done — TypeScript passes. Now STEP 7 — kill old server, start fresh, test:
+
+
+
+
+
+
+
+**Excellent!** `/dashboard` now returns **307** (redirect to /login) instead of 500! The auth-split fix worked.
+
+There are some webpack cache errors in the log, but they are non-fatal (ENOENT cache misses — the cache files haven't been built yet). The server is running and responding correctly.
+
+Now STEP 8 — run full verification. But first let me check that the verify script still points to port 3000:
+
+The verify script points to port 3002 but we're running on port 3000. Need to fix:
+
+
+Now run the verification:
+
+**ALL 11 TESTS PASSED!** Now STEP 9 — cleanup test users:
+
+
+
+
+STEP 9 done — 2 test users deleted. Now STEP 10 — stop dev server:
+
+Now clean up temp scripts:
+
+Here is the final report:
+
+---
+
+[step 0 — broken files]
+- Files checked: layout.tsx, page.tsx, seller/page.tsx, buyer/page.tsx
+- Broken files found and recreated: layout.tsx (had "use client" and form action; recreated as Server Component with `<a>` tags)
+
+[step 1 — lib/session.ts]
+- File created: yes
+
+[step 2 — lib/password.ts]
+- File created: yes
+
+[step 3 — middleware.ts]
+- Import updated to ./lib/session: yes
+- Matcher includes "/dashboard" exactly: yes
+
+[step 4 — API routes]
+- register/route.ts imports updated: yes
+- login/route.ts imports updated: yes
+- me/route.ts imports updated: yes
+- logout/route.ts imports updated: yes
+
+[step 5 — lib/auth.ts]
+- File deleted: yes
+
+[tsc]
+- Exit code: 0
+- Any errors: none
+
+[dev server]
+- HTTP 200 on /: yes
+- HTTP 307 on /dashboard (redirect, NOT 500): yes
+- Dev server log errors: webpack cache ENOENT warnings (non-fatal, cache not yet built); no module crash errors
+
+[verify day2]
+- Exit code: 0
+- All 11 tests passed: yes
+- Paste ALL [ok] / [FAIL] lines verbatim:
+[ok] 1. /api/auth/me without cookie -> 401
+[ok] 2. Register Seller -> 200 + cookie
+[ok] 3. /api/auth/me with cookie -> 200 + SELLER
+[ok] 4. Duplicate email -> 409 EMAIL_TAKEN
+[ok] 5. Wrong password -> 401 INVALID_CREDENTIALS
+[ok] 6. Non-existent email -> same 401 INVALID_CREDENTIALS
+[ok] 7. Correct login -> 200 + cookie
+[ok] 8. Short password -> 400 VALIDATION
+[ok] 9. Register Buyer -> 200
+[ok] 10. /dashboard without cookie -> redirect to /login
+[ok] 11. Logout -> redirect + cleared cookie
+
+[cleanup]
+- Test users deleted: 2
+
+---
+
+**Root cause:** The middleware imported `lib/auth.ts` which imported `bcrypt` at module level. `bcrypt` is a native C++ Node module incompatible with the Edge Runtime where Next.js middleware runs by default. Splitting `lib/auth.ts` into `lib/session.ts` (jose only, Edge-compatible) and `lib/password.ts` (bcrypt only, Node-only) resolved the crash. The middleware now imports only from `lib/session.ts`.
+
+**Files created:** `lib/session.ts`, `lib/password.ts`
+**Files deleted:** `lib/auth.ts`
+**Files modified:** `middleware.ts` (import path), `app/api/auth/register/route.ts`, `app/api/auth/login/route.ts`, `app/api/auth/me/route.ts`, `app/logout/route.ts` (import paths), `app/dashboard/layout.tsx` (converted to Server Component), `scripts/verify_day2.mjs` (port 3002 → 3000)

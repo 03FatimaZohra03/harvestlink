@@ -1,0 +1,175 @@
+@import "tailwindcss";
+
+@theme {
+  /* Colors */
+  --color-sage: #87A878;
+  --color-sage-hover: #779768;
+  --color-sage-tint: rgba(135, 168, 120, 0.15);
+  --color-sage-tint-text: #5C7C4E;
+
+  --color-terracotta: #C97C55;
+  --color-terracotta-tint: rgba(201, 124, 85, 0.12);
+  --color-terracotta-tint-text: #A45934;
+
+  --color-ivory: #F5F1E8;
+  --color-surface: #FFFFFF;
+  --color-surface-container: #F7F3EA;
+  --color-surface-container-high: #ECE8DF;
+
+  --color-border-ghost: #E8E2D5;
+  --color-charcoal: #2A2A2A;
+  --color-muted: #6B6B6B;
+
+  --color-error: #BA1A1A;
+
+  /* Typography - Inter */
+  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+
+  /* Border radius (extend defaults) */
+  --radius-card: 1rem;
+
+  /* Custom shadows */
+  --shadow-card: 0 4px 16px -2px rgba(42, 42, 42, 0.05), 0 2px 6px -1px rgba(42, 42, 42, 0.03);
+  --shadow-card-hover: 0 8px 24px -4px rgba(42, 42, 42, 0.08);
+
+  /* Custom spacing scale */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2.5rem;
+}
+
+/* Inter font import */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap");
+
+/* Material Symbols icon font */
+@import url("https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap");
+
+/* Base body styles */
+body {
+  background-color: var(--color-ivory);
+  color: var(--color-charcoal);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Material Symbols base */
+.material-symbols-outlined {
+  font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+  vertical-align: middle;
+}
+
+/* Reusable utility classes */
+@layer components {
+  /* Card */
+  .hl-card {
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border-ghost);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+  }
+  .hl-card-hover:hover {
+    box-shadow: var(--shadow-card-hover);
+    transform: translateY(-1px);
+  }
+
+  /* Buttons */
+  .hl-btn-primary {
+    background-color: var(--color-sage);
+    color: #FFFFFF;
+    font-weight: 600;
+    font-size: 14px;
+    padding: 0.625rem 1.25rem;
+    border-radius: 0.5rem;
+    transition: background-color 0.15s ease;
+  }
+  .hl-btn-primary:hover {
+    background-color: var(--color-sage-hover);
+  }
+  .hl-btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .hl-btn-urgent {
+    background-color: var(--color-terracotta);
+    color: #FFFFFF;
+    font-weight: 600;
+    font-size: 14px;
+    padding: 0.625rem 1.25rem;
+    border-radius: 0.5rem;
+    transition: background-color 0.15s ease;
+  }
+  .hl-btn-urgent:hover {
+    background-color: #B56B45;
+  }
+
+  .hl-btn-ghost {
+    background-color: var(--color-surface);
+    color: var(--color-charcoal);
+    border: 1px solid var(--color-border-ghost);
+    font-weight: 500;
+    font-size: 14px;
+    padding: 0.625rem 1.25rem;
+    border-radius: 0.5rem;
+    transition: background-color 0.15s ease;
+  }
+  .hl-btn-ghost:hover {
+    background-color: var(--color-ivory);
+  }
+
+  /* Inputs */
+  .hl-input {
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border-ghost);
+    border-radius: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    color: var(--color-charcoal);
+    font-size: 15px;
+    width: 100%;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+  .hl-input:focus {
+    outline: none;
+    border-color: var(--color-sage);
+    box-shadow: 0 0 0 2px var(--color-sage-tint);
+  }
+
+  /* Pills / badges */
+  .hl-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0.625rem;
+    border-radius: 9999px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+  }
+  .hl-pill-sage {
+    background-color: var(--color-sage-tint);
+    color: var(--color-sage-tint-text);
+  }
+  .hl-pill-terracotta {
+    background-color: var(--color-terracotta-tint);
+    color: var(--color-terracotta-tint-text);
+  }
+  .hl-pill-gray {
+    background-color: var(--color-surface-container-high);
+    color: var(--color-muted);
+  }
+
+  /* Status badge colors */
+  .hl-status-available { background-color: var(--color-sage-tint); color: var(--color-sage-tint-text); }
+  .hl-status-reserved { background-color: rgba(234, 179, 8, 0.15); color: #92732F; }
+  .hl-status-sold { background-color: rgba(59, 130, 246, 0.15); color: #2563EB; }
+  .hl-status-expired { background-color: var(--color-surface-container-high); color: var(--color-muted); }
+  .hl-status-pending { background-color: rgba(234, 179, 8, 0.15); color: #92732F; }
+  .hl-status-accepted { background-color: var(--color-sage-tint); color: var(--color-sage-tint-text); }
+  .hl-status-rejected { background-color: rgba(220, 38, 38, 0.15); color: var(--color-error); }
+  .hl-status-cancelled { background-color: var(--color-surface-container-high); color: var(--color-muted); }
+  .hl-status-completed { background-color: rgba(59, 130, 246, 0.15); color: #2563EB; }
+}

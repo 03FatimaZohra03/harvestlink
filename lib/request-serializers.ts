@@ -1,0 +1,31 @@
+export function serializeRequest(r: any) {
+  return {
+    id: r.id,
+    produceId: r.produceId,
+    buyerId: r.buyerId,
+    quantityRequested: r.quantityRequested?.toString() ?? null,
+    proposedPricePerUnit: r.proposedPricePerUnit?.toString() ?? null,
+    currency: r.currency,
+    proposedPickupTime: r.proposedPickupTime?.toISOString() ?? null,
+    pickupLocationText: r.pickupLocationText ?? null,
+    pickupNotes: r.pickupNotes ?? null,
+    status: r.status,
+    buyerMessage: r.buyerMessage ?? null,
+    createdAt: r.createdAt?.toISOString() ?? null,
+    respondedAt: r.respondedAt?.toISOString() ?? null,
+    completedAt: r.completedAt?.toISOString() ?? null,
+    produce: r.produce ? {
+      id: r.produce.id,
+      name: r.produce.name,
+      quantityAvailable: r.produce.quantityAvailable?.toString() ?? null,
+      quantityUnit: r.produce.quantityUnit,
+      pricePerUnit: r.produce.pricePerUnit?.toString() ?? null,
+      currency: r.produce.currency,
+      availableUntil: r.produce.availableUntil?.toISOString() ?? null,
+      status: r.produce.status,
+      city: r.produce.city,
+      locationText: r.produce.locationText,
+      category: r.produce.category ? { id: r.produce.category.id, name: r.produce.category.name } : null,
+    } : null,
+  };
+}

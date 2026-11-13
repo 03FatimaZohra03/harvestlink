@@ -1,0 +1,196 @@
+generator client {
+  provider              = "prisma-client"
+  output                = "../generated/prisma"
+  moduleFormat          = "esm"
+  generatedFileExtension = "ts"
+  importFileExtension   = "ts"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Category {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String   @default("")
+  produce     Produce[]
+  @@map("Category")
+}
+
+model Admin {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String   @default("")
+  passwordHash String
+  role         String   @default("admin")
+  @@map("Admin")
+}
+
+enum AccountType {
+  SELLER
+  BUYER
+  LOGISTICS
+}
+
+enum LogisticsRole {
+  TRANSPORTER
+  STORAGE_PROVIDER
+}
+
+enum ProduceStatus {
+  AVAILABLE
+  RESERVED
+  SOLD
+  EXPIRED
+}
+
+enum RequestStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  CANCELLED
+  COMPLETED
+}
+
+enum PickupStatus {
+  SCHEDULED
+  IN_TRANSIT
+  DELIVERED
+  CANCELLED
+}
+
+model User {
+  id              String        @id @default(cuid())
+  email           String        @unique
+  name            String
+  passwordHash    String
+
+  accountType     AccountType
+  logisticsRole   LogisticsRole?
+
+  phone           String?
+
+  locationText    String?
+  city            String?
+  state           String?
+  pincode         String?
+
+  businessName    String?
+
+  isActive        Boolean       @default(true)
+
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  produceListings    Produce[]        @relation("SellerProduce")
+  buyerRequests      ProduceRequest[]
+  transporterPickups Pickup[]         @relation("TransporterPickups")
+
+  @@index([accountType])
+  @@index([city])
+  @@index([pincode])
+  @@index([isActive])
+}
+
+model Produce {
+  id                  String        @id @default(cuid())
+
+  sellerId            String
+  seller              User          @relation("SellerProduce", fields: [sellerId], references: [id], onDelete: Cascade)
+
+  categoryId          String
+  category            Category      @relation(fields: [categoryId], references: [id])
+
+  name                String
+  description         String?
+
+  quantityAvailable   Decimal       @db.Decimal(10, 2)
+  quantityUnit        String
+
+  pricePerUnit        Decimal       @db.Decimal(10, 2)
+  currency            String        @default("INR")
+
+  locationText        String
+  city                String?
+  state               String?
+  pincode             String?
+
+  harvestDate         DateTime?
+  availableUntil      DateTime
+  status              ProduceStatus @default(AVAILABLE)
+
+  pickupNotes         String?
+
+  imageUrls           String[]      @default([])
+
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+
+  requests            ProduceRequest[]
+
+  @@index([sellerId])
+  @@index([categoryId])
+  @@index([status])
+  @@index([availableUntil])
+  @@index([city])
+  @@index([pincode])
+}
+
+model ProduceRequest {
+  id                       String        @id @default(cuid())
+
+  produceId                String
+  produce                  Produce       @relation(fields: [produceId], references: [id], onDelete: Cascade)
+
+  buyerId                  String
+  buyer                    User          @relation(fields: [buyerId], references: [id], onDelete: Cascade)
+
+  quantityRequested        Decimal       @db.Decimal(10, 2)
+  proposedPricePerUnit     Decimal       @db.Decimal(10, 2)
+  currency                 String        @default("INR")
+
+  proposedPickupTime       DateTime?
+  pickupLocationText       String?
+  pickupNotes              String?
+
+  status                   RequestStatus @default(PENDING)
+  buyerMessage             String?
+
+  createdAt                DateTime      @default(now())
+  respondedAt              DateTime?
+  completedAt              DateTime?
+
+  pickup                   Pickup?
+
+  @@index([produceId])
+  @@index([buyerId])
+  @@index([status])
+}
+
+model Pickup {
+  id                       String        @id @default(cuid())
+
+  requestId                String        @unique
+  request                  ProduceRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+
+  transporterId            String?
+  transporter              User?         @relation("TransporterPickups", fields: [transporterId], references: [id])
+
+  scheduledPickupTime      DateTime
+  actualPickupTime         DateTime?
+  deliveredTime            DateTime?
+
+  pickupLocationText       String
+  deliveryLocationText     String
+
+  status                   PickupStatus  @default(SCHEDULED)
+  transporterNotes         String?
+
+  createdAt                DateTime      @default(now())
+  updatedAt                DateTime      @updatedAt
+
+  @@index([transporterId])
+  @@index([status])
+}
+
